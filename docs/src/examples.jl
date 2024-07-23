@@ -105,8 +105,6 @@ ax.grid("on")
 # This example demonstrates generating a timeline and stress data, fitting multiple models to the data,
 # calling the `extractfitdata` function, listing the errors, and determining which model fits the best.
 
-using RHEOS
-
 # Generate Timeline
 datat = timeline(t_start = 0, t_end = 20.0, step = 0.02)  # Create a timeline from 0 to 20 seconds with a step size of 0.02 seconds
 
@@ -116,8 +114,7 @@ dhold_stress = dramp_stress - stressfunction(datat, ramp(offset = 5.0, gradient 
 
 # Define the rheological model and predict
 model = RheoModel(SLS_Zener, (η = 1, kᵦ = 1, kᵧ = 1))
-SLS_predict = modelpredict(dhold_stress, model)
-data = SLS_predict
+data = modelpredict(dhold_stress, model)
 
 # Fit three models to the data
 SLS_Zener_model = modelfit(data, SLS_Zener, strain_imposed)
@@ -145,21 +142,21 @@ end
 println("Best fitting model: $best_model with total error: $min_error")
 
 # Create strain-only data for model predictions
-strain_only_data = onlystrain(data)
+stress_only_data = onlystress(data)
 
 # Get model predictions for plotting
-SLS_Zener_predict = modelpredict(strain_only_data, SLS_Zener_model)
-Maxwell_predict = modelpredict(strain_only_data, Maxwell_model)
-BurgersLiquid_predict = modelpredict(strain_only_data, BurgersLiquid_model)
+SLS_Zener_predict = modelpredict(stress_only_data, SLS_Zener_model)
+Maxwell_predict = modelpredict(stress_only_data, Maxwell_model)
+BurgersLiquid_predict = modelpredict(stress_only_data, BurgersLiquid_model)
 
 # Plot data and fitted models
 fig, ax = subplots(1, 1, figsize = (7, 5))
-ax.plot(data.t, data.σ, ".", color = "green", label = "Original Data")
-ax.plot(SLS_Zener_predict.t, SLS_Zener_predict.σ, "-", color = "red", label = "SLS_Zener Model")
-ax.plot(Maxwell_predict.t, Maxwell_predict.σ, "--", color = "blue", label = "Maxwell Model")
-ax.plot(BurgersLiquid_predict.t, BurgersLiquid_predict.σ, ":", color = "purple", label = "BurgersLiquid Model")
+ax.plot(data.t, data.ϵ, ".", color = "green", label = "Original Data")
+ax.plot(SLS_Zener_predict.t, SLS_Zener_predict.ϵ, "-", color = "red", label = "SLS_Zener Model")
+ax.plot(Maxwell_predict.t, Maxwell_predict.ϵ, "--", color = "blue", label = "Maxwell Model")
+ax.plot(BurgersLiquid_predict.t, BurgersLiquid_predict.ϵ, ":", color = "purple", label = "BurgersLiquid Model")
 ax.set_xlabel("Time")
-ax.set_ylabel("Stress")
+ax.set_ylabel("Strain")
 ax.legend()
 ax.grid("on")
 #!nb fig #hide
